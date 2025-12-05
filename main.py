@@ -1,26 +1,13 @@
 from fastapi import FastAPI, Depends, HTTPException, status
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from typing import List
 from datetime import timedelta
 
-from models import Base, User
 from auth import (
-    get_password_hash,
-    verify_password,
     create_access_token,
     verify_token,
     ACCESS_TOKEN_EXPIRE_MINUTES
 )
-
-# Database setup
-SQLALCHEMY_DATABASE_URL = "sqlite:///./users.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Create tables
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Sample API", description="API with login and protected routes")
 
@@ -47,14 +34,6 @@ class ProductResponse(BaseModel):
     price: int
     inStock: bool
     category: str
-
-# Dependency
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @app.get("/")
 def root():
